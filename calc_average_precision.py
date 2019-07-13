@@ -33,6 +33,10 @@ def _convert_dict_to_bboxes(bbox_list: List[Dict], bb_type: BBType) -> BoundingB
     return ret
 
 
+def _get_json_str(json_path: str) -> str:
+    return open(json_path).read().replace("\n", "")
+
+
 def calc_accuracy_metrics(gt_json: str, dt_json: str) -> List[Dict]:
     gt_json = gt_json.replace("\n", "")
     dt_json = dt_json.replace("\n", "")
@@ -51,6 +55,7 @@ def calc_accuracy_metrics(gt_json: str, dt_json: str) -> List[Dict]:
     ret = eval.GetPascalVOCMetrics(all_boxes)
     return ret
 
+
 def calc_mean_average_precision(gt_json: str, dt_json: str) -> float:
     all_metrics = calc_accuracy_metrics(gt_json, dt_json)
     valid_classes = 0
@@ -66,8 +71,20 @@ def calc_mean_average_precision(gt_json: str, dt_json: str) -> float:
     return mAP
 
 
-if __name__ == "__main__":
-    gt_str = open("gt_bbox_format.json").read().replace("\n", "")
-    dt_str = open("dt_bbox_format.json").read().replace("\n", "")
+def calc_accuracy_metrics_from_file(gt_json_path: str, dt_json_path: str) -> List[Dict]:
+    gt_str = _get_json_str(gt_json_path)
+    dt_str = _get_json_str(dt_json_path)
+    ret = calc_accuracy_metrics(gt_str, dt_str)
+    return ret
+
+
+def calc_mean_average_precision_from_file(gt_json_path: str, dt_json_path: str) -> float:
+    gt_str = _get_json_str(gt_json_path)
+    dt_str = _get_json_str(dt_json_path)
     ret = calc_mean_average_precision(gt_str, dt_str)
+    return ret
+
+
+if __name__ == "__main__":
+    ret = calc_mean_average_precision_from_file("json/gt_bbox_format.json", "json/dt_bbox_format.json")
     print(ret)
